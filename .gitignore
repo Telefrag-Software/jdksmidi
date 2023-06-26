@@ -45,6 +45,9 @@ local.properties
 *.suo
 *.user
 *.sln.docstates
+*.vcproj.*
+*.vcxproj.user
+.vs
 
 # Build results
 
@@ -218,3 +221,12 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+
+# Git
+*.orig
+
+# Build Directory
+build/*
+
+# Pre-Processed Files
+version.h

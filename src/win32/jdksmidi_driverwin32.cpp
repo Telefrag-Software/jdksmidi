@@ -302,7 +302,7 @@ bool MIDIDriverWin32::HardwareMsgOut ( const MIDITimedBigMessage &msg )
 
 // protected functions
 
-void CALLBACK MIDIDriverWin32::win32_timer( UINT wTimerID, UINT msg, DWORD dwUser, DWORD dw1, DWORD dw2 )
+void CALLBACK MIDIDriverWin32::win32_timer( UINT wTimerID, UINT msg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2 )
 {
     MIDIDriverWin32 *self = (MIDIDriverWin32 *)dwUser;
     self->TimeTick( GetSystemTime() );

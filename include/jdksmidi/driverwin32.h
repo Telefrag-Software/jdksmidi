@@ -166,7 +166,7 @@ class MIDIDriverWin32 : public MIDIDriver
     /* END OF NEW */
 
     /// The callback function called to every timer tick when playing
-    static void CALLBACK win32_timer( UINT wTimerID, UINT msg, DWORD dwUser, DWORD dw1, DWORD dw2 );
+    static void CALLBACK win32_timer( UINT wTimerID, UINT msg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2 );
 
     /// The callback function called for MIDI in
     static void CALLBACK win32_midi_in( HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD dwParam1, DWORD dwParam2 );

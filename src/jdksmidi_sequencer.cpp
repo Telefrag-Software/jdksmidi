@@ -929,10 +929,10 @@ bool MIDISequencer::GoToTime( MIDIClockTime time_clk )
             //  -clocks_per_sec = true_bpm * clks_per_beat / 60
             //  -clocks_per_ms = clocks_per_sec / 1000
             //  -ms_per_clock = 1 / clocks_per_ms
-            float ms_per_clock = (double)6000000.0
+            double ms_per_clock = (double)6000000.0
                                  / ( state.tempobpm * (double)tempo_scale * state.multitrack->GetClksPerBeat() );
             state.cur_clock = time_clk;
-            state.cur_time_ms += ( ms_per_clock * delta_time );
+            state.cur_time_ms += static_cast<float>( ms_per_clock * delta_time );
         }
     }
 

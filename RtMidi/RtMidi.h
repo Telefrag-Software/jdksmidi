@@ -64,7 +64,7 @@ class RtMidiError : public std::exception
 {
   public:
     //! Defined RtMidiError types.
-    enum Type
+    enum class Type
     {
         WARNING,           /*!< A non-critical error. */
         DEBUG_WARNING,     /*!< A non-critical error which might be useful for debugging. */
@@ -80,14 +80,14 @@ class RtMidiError : public std::exception
     };
 
     //! The constructor.
-    RtMidiError( const std::string &message, Type type = RtMidiError::UNSPECIFIED ) throw()
+    RtMidiError( const std::string &message, Type type = Type::UNSPECIFIED ) throw()
         : message_( message )
         , type_( type )
     {
     }
 
     //! The destructor.
-    virtual ~RtMidiError( void ) throw()
+    virtual ~RtMidiError( void )
     {
     }
 
@@ -137,7 +137,7 @@ class RtMidi
   public:
 
     //! MIDI API specifier arguments.
-    enum Api
+    enum class Api
     {
         UNSPECIFIED, /*!< Search for a working compiled API. */
         MACOSX_CORE, /*!< Macintosh OS-X Core Midi API. */
@@ -248,7 +248,7 @@ class RtMidiIn : public RtMidi
                         by the application.
       \param queueSizeLimit An optional size of the MIDI input queue can be specified.
     */
-    RtMidiIn( RtMidi::Api api = UNSPECIFIED,
+    RtMidiIn( RtMidi::Api api = Api::UNSPECIFIED,
               const std::string clientName = std::string( "RtMidi Input Client" ),
               unsigned int queueSizeLimit = 100 );
 
@@ -377,7 +377,7 @@ class RtMidiOut : public RtMidi
       compiled, the default order of use is ALSA, JACK (Linux) and CORE,
       JACK (OS-X).
     */
-    RtMidiOut( RtMidi::Api api = UNSPECIFIED, const std::string clientName = std::string( "RtMidi Output Client" ) );
+    RtMidiOut( RtMidi::Api api = Api::UNSPECIFIED, const std::string clientName = std::string( "RtMidi Output Client" ) );
 
     //! The destructor closes any open MIDI connections.
     ~RtMidiOut( void ) throw();
@@ -519,7 +519,7 @@ class MidiInApi : public MidiApi
 
         // Default constructor.
         MidiQueue()
-  :front(0), back(0), size(0), ringSize(0)
+  :front(0), back(0), size(0), ringSize(0), ring(0)
         {
         }
     };
@@ -857,11 +857,11 @@ class MidiInDummy : public MidiInApi
     MidiInDummy( const std::string /*clientName*/, unsigned int queueSizeLimit ) : MidiInApi( queueSizeLimit )
     {
         errorString_ = "MidiInDummy: This class provides no functionality.";
-        error( RtMidiError::WARNING, errorString_ );
+        error( RtMidiError::Type::WARNING, errorString_ );
     }
     RtMidi::Api getCurrentApi( void )
     {
-        return RtMidi::RTMIDI_DUMMY;
+        return RtMidi::Api::RTMIDI_DUMMY;
     }
     void openPort( unsigned int /*portNumber*/, const std::string /*portName*/ )
     {
@@ -893,11 +893,11 @@ class MidiOutDummy : public MidiOutApi
     MidiOutDummy( const std::string /*clientName*/ )
     {
         errorString_ = "MidiOutDummy: This class provides no functionality.";
-        error( RtMidiError::WARNING, errorString_ );
+        error( RtMidiError::Type::WARNING, errorString_ );
     }
     RtMidi::Api getCurrentApi( void )
     {
-        return RtMidi::RTMIDI_DUMMY;
+        return RtMidi::Api::RTMIDI_DUMMY;
     }
     void openPort( unsigned int /*portNumber*/, const std::string /*portName*/ )
     {

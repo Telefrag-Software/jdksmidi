@@ -41,7 +41,9 @@ MIDIDriver::MIDIDriver ( int queue_size )
     thru_proc ( 0 ),
     thru_enable ( false ),
     timer_open ( false ),
-    tick_proc ( 0 )
+    tick_proc ( 0 ),
+    buffer_size ( 0 ),
+    buffer ( 0 )
 {
 }
 
@@ -170,7 +172,7 @@ bool MIDIDriver::OpenMIDIInPort( int id )
     {
         try
         {
-            m_pMidiIn = new RtMidiIn( RtMidi::UNSPECIFIED, m_strClientName );
+            m_pMidiIn = new RtMidiIn( RtMidi::Api::UNSPECIFIED, m_strClientName );
         }
         catch ( RtMidiError &error )
         {
@@ -204,7 +206,7 @@ bool MIDIDriver::OpenMIDIOutPort( int id )
     {
         try
         {
-            m_pMidiOut = new RtMidiOut( RtMidi::UNSPECIFIED, m_strClientName );
+            m_pMidiOut = new RtMidiOut( RtMidi::Api::UNSPECIFIED, m_strClientName );
         }
         catch ( RtMidiError &error )
         {
@@ -358,7 +360,7 @@ unsigned long MIDIDriver::GetSystemTime()
 {
     std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
     std::chrono::milliseconds dur = std::chrono::duration_cast<std::chrono::milliseconds>( now - session_start );
-    unsigned long ret = dur.count();
+    unsigned long ret = static_cast<unsigned long>(dur.count());
     return ret;
 }
 }

@@ -323,7 +323,7 @@ void AdvancedSequencer::GoToMeasure( int measure, int beat )
     // figure out which warp item we use
     // try warp to the last warp point BEFORE the
     // requested measure
-    unsigned int warp_to_item = (unsigned int)measure / MEASURES_PER_WARP;
+    size_t warp_to_item = (unsigned int)measure / MEASURES_PER_WARP;
 
     if ( warp_to_item >= warp_positions.size() )
         warp_to_item = warp_positions.size() - 1;
@@ -567,7 +567,7 @@ unsigned long AdvancedSequencer::GetCurrentTimeInMs() const
     }
     else
     {
-        return seq->GetCurrentTimeInMs();
+        return static_cast<unsigned long>(seq->GetCurrentTimeInMs());
     }
 }
 
