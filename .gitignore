@@ -1,0 +1,12 @@
+Build/*
+.vs
+version.h
+*.ncb
+*.aps
+*.sdf
+*.suo
+*.vcproj.*
+*.vcxproj.user
+*.opensdf
+*.EXE
+*.orig

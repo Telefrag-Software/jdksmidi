@@ -325,7 +325,7 @@ void MIDIFileWrite::WriteTextEvent ( unsigned long time, unsigned char type, con
     WriteCharacter ( type ); // Text event type
     IncrementCounters ( 2 );
 
-    int len = strlen ( text );
+    int len = static_cast<int>( strlen ( text ) );
     IncrementCounters ( WriteVariableNum ( len ) );
 
     while ( *text )
