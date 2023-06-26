@@ -21,6 +21,19 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+/*
+ Part of this file (see AlsaDriver.h)
+ Originally developed for CFugue, adapted into jdksmidi with special permission
+
+ Copyright (C) 2009-2014 Cenacle Research India Private Limited
+
+ For links to further information, or to contact the author,
+ see <http://cfugue.sourceforge.net/>.
+
+    $LastChangedDate: 2013-12-18 10:59:57 +0530 (Wed, 18 Dec 2013) $
+    $Rev: 197 $
+    $LastChangedBy: krishnapg $
+*/
 
 //
 // MODIFIED by N. Cassetta ncassetta@tiscali.it
@@ -29,12 +42,17 @@
 #ifndef JDKSMIDI_DRIVER_H
 #define JDKSMIDI_DRIVER_H
 
+#include <chrono>
+#include <string>
+
 #include "jdksmidi/msg.h"
-#include "jdksmidi/sysex.h"
 #include "jdksmidi/matrix.h"
 #include "jdksmidi/process.h"
 #include "jdksmidi/queue.h"
 #include "jdksmidi/tick.h"
+
+#define AVOID_TIMESTAMPING
+#include"../RtMidi/RtMidi.h"
 
 namespace jdksmidi
 {
@@ -55,12 +73,12 @@ namespace jdksmidi
 class MIDIDriver : public MIDITick
 {
 
-public:
+  public:
 
     /// The constructor. It allocates memory for the MIDI queues, and set to NULL the pointers to in, thru and out
     /// processors
     /// \param queue_size the length in bits of the in and out MIDIQueue
-    MIDIDriver ( int queue_size );
+    MIDIDriver( int queue_size );
 
     /// The destructor frees the memory allocated for the MIDIQueue.\ Eventual MIDIProcessor pointer are not owned.
     virtual ~MIDIDriver();
@@ -69,23 +87,23 @@ public:
     virtual void Reset();
 
     /// Returns the midi in queue
-    MIDIQueue * InputQueue()
+    MIDIQueue *InputQueue()
     {
         return &in_queue;
     }
 
-    const MIDIQueue * InputQueue() const
+    const MIDIQueue *InputQueue() const
     {
         return &in_queue;
     }
 
     /// Returns the midi out queue
-    MIDIQueue * OutputQueue()
+    MIDIQueue *OutputQueue()
     {
         return &out_queue;
     }
 
-    const MIDIQueue * OutputQueue() const
+    const MIDIQueue *OutputQueue() const
     {
         return &out_queue;
     }
@@ -97,7 +115,7 @@ public:
     }
 
     /// Enables the MIDI thru (incoming MIDI messages are echoed to the MIDI out)
-    void SetThruEnable ( bool f )
+    void SetThruEnable( bool f )
     {
         thru_enable = f;
     }
@@ -109,19 +127,19 @@ public:
     }
 
     /// Sets the thru MIDIprocessor
-    void SetThruProcessor ( MIDIProcessor *proc )
+    void SetThruProcessor( MIDIProcessor *proc )
     {
         thru_proc = proc;
     }
 
     /// Sets the out MIDIProcessor
-    void SetOutProcessor ( MIDIProcessor *proc )
+    void SetOutProcessor( MIDIProcessor *proc )
     {
         out_proc = proc;
     }
 
     /// Sets the in MIDIProcessor
-    void SetInProcessor ( MIDIProcessor *proc )
+    void SetInProcessor( MIDIProcessor *proc )
     {
         in_proc = proc;
     }
@@ -130,17 +148,17 @@ public:
     /// inherited from MIDITick, implementing the pure virtual TimeTick(). Then call this with a pointer
     /// to your instance and your TimeTick() will be called by the driver TimeTick() ( MIDIDriver also inherits
     /// from MIDITick ), allowing you to process incoming and outcoming data.
-    void SetTickProc ( MIDITick *tick )
+    void SetTickProc( MIDITick *tick )
     {
         tick_proc = tick;
     }
 
     /// Processes the message _nsg_ with the out processor and the midi matrix and then puts it
     /// in the out_queue. The message is effectively sent to the MIDI hardware by the TimeTick() callback
-    void OutputMessage ( MIDITimedBigMessage &msg );
+    void OutputMessage( MIDITimedBigMessage &msg );
 
     /// Sends a MIDI ALL NOTES OFF message on selected midi chanel
-    void AllNotesOff ( int chan );
+    void AllNotesOff( int chan );
 
     /// Sends a MIDI ALL NOTES OFF message on all midi channels
     void AllNotesOff();
@@ -151,37 +169,37 @@ public:
     /// which processes the message with the in MIDIProcessor, manages the MIDI thru and at last put it
     /// into the in queue
     /// \see TimeTick()
-    virtual bool HardwareMsgIn ( MIDITimedBigMessage &msg );
+    virtual bool HardwareMsgIn( MIDITimedBigMessage &msg );
 
     /* NEW BY NC:
-	 * NOTE: In order to develop MIDI driver classes for other OS than Windows I started to
-	 * integrate older MIDIDriverWin32 methods into the base class, giving them as pure virtual. So
-	 * now every subclass of a MIDIDriver must implement these.
-	 */
+  * NOTE: In order to develop MIDI driver classes for other OS than Windows I started to
+  * integrate older MIDIDriverWin32 methods into the base class, giving them as pure virtual. So
+  * now every subclass of a MIDIDriver must implement these.
+  */
 
     /// Opens the MIDI in port _id_
-    virtual bool OpenMIDIInPort ( int id ) = 0;
+    virtual bool OpenMIDIInPort( int id );
 
     /// Opens the MIDI out port _id_
-    virtual bool OpenMIDIOutPort ( int id ) = 0;
+    virtual bool OpenMIDIOutPort( int id );
 
     /// Closes the open MIDI in port
-    virtual void CloseMIDIInPort() = 0;
+    virtual void CloseMIDIInPort();
 
     /// Closes the open MIDI out port
-    virtual void CloseMIDIOutPort() = 0;
+    virtual void CloseMIDIOutPort();
+
+    /// Sends the MIDITimedBigMessage _msg_ to the open MIDI out port
+    virtual bool HardwareMsgOut( const MIDITimedBigMessage &msg );
 
     /// Resets open MIDI out port
     virtual void ResetMIDIOut() = 0;
 
     /// Starts the hardware timer for playing MIDI. Default time resolution is 1 ms
-    virtual bool StartTimer ( int resolution_ms = DEFAULT_TIMER_RESOLUTION ) = 0;
+    virtual bool StartTimer( int resolution_ms = DEFAULT_TIMER_RESOLUTION ) = 0;
 
     /// Stops the hardware timer
     virtual void StopTimer() = 0;
-
-    /// Sends the MIDITimedBigMessage _msg_ to the open MIDI out port
-    virtual bool HardwareMsgOut ( const MIDITimedBigMessage &msg ) = 0;
 
     /// This is the TimeTick (callback) procedure inherited from MIDITick; when the hardware timer is started, it is
     /// called at every timer tick.
@@ -190,90 +208,63 @@ public:
     /// need to poll MIDI in hardware: your function should poll the hardware, parse the bytes, form a message,
     /// and give it to HardwareMsgIn()
     /// \note This class gives no callback mechanism: it must be implemented in subclasses accordingly OS details
-    virtual void TimeTick ( unsigned long sys_time );
+    virtual void TimeTick( unsigned long sys_time );
 
     /* Moreover, now the driver keeps track statically of the MIDI devices installed on the computer
      * so, by these method, you can get them
      */
 
     /// Gets the nunber of MIDI in ports present on the computer.
-    /// \note Currently it's only effective for Windows.
-    static unsigned int GetNumMIDIInDevs()
-    {
-        return num_in_devs;
-    }
+    static unsigned int GetNumMIDIInDevs();
 
     /// Gets the number of MIDI out ports present on the computer.
-    /// \note Currently it's only effective for Windows.
-    static unsigned int GetNumMIDIOutDevs()
-    {
-        return num_out_devs;
-    }
+    static unsigned int GetNumMIDIOutDevs();
 
-	/// Gets the name of the MIDI in port _i_.
-	/// \note Currently it's only effective for Windows.
-	static const char* GetMIDIInDevName(unsigned int i)
-	{
-	    if ( i < num_in_devs )
-        {
-            return in_dev_names[i];
-        }
-        else
-        {
-            return "";
-        }
-	}
+    /// Gets the name of the MIDI in port _id_.
+    static std::string GetMIDIInDevName( unsigned int id );
 
-    /// Gets the name of the MIDI out port _i_.
-    /// \note Currently it's only effective for Windows.
-	static const char* GetMIDIOutDevName(unsigned int i)
-    {
-	    if ( i < num_out_devs )
-        {
-            return out_dev_names[i];
-        }
-        else
-        {
-            return "";
-        }
-	}
+    /// Gets the name of the MIDI out port _id_.
+    static std::string GetMIDIOutDevName( unsigned int id );
 
-	 static const int DEFAULT_TIMER_RESOLUTION = 1; ///< The default timer resolution is 1 msec
-	 // public: used by AdvancedSequencer
+    /// This is used internally to get the system time in msecs, from the start of the program.
+    static unsigned long GetSystemTime();
 
-protected:
+    static const int DEFAULT_TIMER_RESOLUTION = 1; ///< The default timer resolution is 1 msec
+                                                   // public: used by AdvancedSequencer
 
-    MIDIQueue in_queue;             ///< The in queue
-    MIDIQueue out_queue;            ///< The out queue
+  protected:
 
-    MIDIProcessor *in_proc;         ///< The in processor
-    MIDIProcessor *out_proc;        ///< The out processor
-    MIDIProcessor *thru_proc;       ///< The thru processor
+    RtMidiIn *m_pMidiIn;         ///< The RtMidi abstraction for the MIDI in port
+    RtMidiOut *m_pMidiOut;       ///< The RtMidi abstraction for the MIDI out port
+    std::string m_strClientName; ///< Ab optional name for the MIDI driver
 
-    bool thru_enable;               ///< *true* if thru is enabled
+    MIDIQueue in_queue;  ///< The in queue
+    MIDIQueue out_queue; ///< The out queue
 
-    MIDITick *tick_proc;            ///< An additional TimeTick object: see SetTickProc()
+    MIDIProcessor *in_proc;   ///< The in processor
+    MIDIProcessor *out_proc;  ///< The out processor
+    MIDIProcessor *thru_proc; ///< The thru processor
 
-    MIDIMatrix out_matrix;          ///< Keeps track of notes on going to MIDI out
+    bool thru_enable; ///< **true** if thru is enabled
 
+    bool timer_open; ///< **true** if the time has been started
 
-/* NEW BY NC
- * these keep track of the MIDI devices present in the OS
- * NOTE: this is only a temporary situation, probably in the future we'll use RtMidi for getting the number
- * and names of the devices
- */
-    static const int DEVICENAME_LEN = 80;
+    MIDITick *tick_proc; ///< An additional TimeTick object: see SetTickProc()
 
-    static char** in_dev_names;         ///< Array of char* which holds the names of MIDI in devices
-    static char** out_dev_names;        ///< Array of char* which holds the names of MIDI out devices
-    static unsigned int num_in_devs;    ///< Number of MIDI in devices installed
-    static unsigned int num_out_devs;   ///< Number of MIDI out devices installed
+    MIDIMatrix out_matrix; ///< Keeps track of notes on going to MIDI out
+
+    static const int DEFAULT_BUFFER_SIZE = 384;
+
+    int buffer_size;       ///< The size of the buffer
+    unsigned char *buffer; ///< The buffer used to send MIDI bytes
+
+    static std::chrono::steady_clock::time_point session_start;
+    ///< A time_point representing the start of the program
 };
 
 // TODO: (note to Jeff by NC) the out_matrix has no functions to get it, and it is currently unused by
 // other classes. If we don't want to eliminate it, we could introduce an enable/disable processing
 // feature to speed up
-
 }
 
 #endif

@@ -52,10 +52,10 @@
 namespace jdksmidi
 {
 
-#define ENTER(a)
+#define ENTER( a )
 
-#define DBG(a)
-#define OSTYPE( a,b,c,d )       ((a)*0x1000000 + (b)*0x10000 + (c)*0x100 + (d) )
+#define DBG( a )
+#define OSTYPE( a, b, c, d ) ( ( a ) * 0x1000000 + ( b ) * 0x10000 + ( c ) * 0x100 + ( d ) )
 
 typedef unsigned char uchar;
 typedef unsigned long ulong;
@@ -81,14 +81,12 @@ MIDI Files easily.
 
 */
 
-#ifdef WIN32
-#pragma warning(disable: 4996) // to take away "function was declared deprecated" warnings
-#pragma warning(disable: 4355) // 'this' used in base member initializer list
+#ifdef _MSC_VER
+#pragma warning( disable : 4996 ) // to take away "function was declared deprecated" warnings
+#pragma warning( disable : 4355 ) // 'this' used in base member initializer list
 #endif
-
 }
 
 #include "jdksmidi/utils.h"
 
 #endif
-
